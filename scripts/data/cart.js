@@ -1,4 +1,4 @@
-export const cart = [];
+export const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 export function addToCart(productId, quantity){
     const matchingItem = cart.find(cartItem => cartItem.productId === productId);
@@ -6,6 +6,7 @@ export function addToCart(productId, quantity){
         productId,
         quantity
     });
+    localStorage.setItem('cart', JSON.stringify(cart));
 }
 
 export function calculateCartQuantity(){
