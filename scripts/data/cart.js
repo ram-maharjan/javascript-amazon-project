@@ -1,10 +1,10 @@
 export const cart = [];
 
-export function addToCart(productId){
+export function addToCart(productId, quantity){
     const matchingItem = cart.find(cartItem => cartItem.productId === productId);
-    matchingItem ? matchingItem.quantitiy++ : cart.push({
+    matchingItem ? matchingItem.quantity += quantity : cart.push({
         productId,
-        quantitiy: 1
+        quantity
     });
 }
 
@@ -12,7 +12,7 @@ export function calculateCartQuantity(){
     let cartQuantity = 0;
 
     cart.forEach(cartItem => {
-        cartQuantity += cartItem.quantitiy
+        cartQuantity += cartItem.quantity
     });
 
     return cartQuantity;
