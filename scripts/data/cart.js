@@ -1,14 +1,26 @@
 import { getProduct } from "./products.js";
 
-export const cart = JSON.parse(localStorage.getItem('cart')) || [];
+export const cart = loadFromStorage();
+
+function loadFromStorage(){
+    return JSON.parse(localStorage.getItem('cart')) || [];
+}
+
+function saveToStorage(){
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function getCartItem(productId){
+    return cart.find(cartItem => cartItem.productId === productId)
+}
 
 export function addToCart(productId, quantity){
-    const matchingItem = cart.find(cartItem => cartItem.productId === productId);
+    const matchingItem = getCartItem(productId);
     matchingItem ? matchingItem.quantity += quantity : cart.push({
         productId,
         quantity
     });
-    localStorage.setItem('cart', JSON.stringify(cart));
+    saveToStorage();
 }
 
 export function calculateCartQuantity(){
@@ -32,3 +44,10 @@ export function calculateCartPriceCents(){
 
     return cartPriceCents;
 }
+
+export function updateCartItemQuantity(productId, quantity){
+    const cartItem = getCartItem(productId);
+    cartItem.quantity = quantity;
+    saveToStorage();   
+}
+

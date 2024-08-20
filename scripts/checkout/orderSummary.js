@@ -1,6 +1,8 @@
-import { cart } from "../data/cart.js";
+import { cart, updateCartItemQuantity } from "../data/cart.js";
 import { getProduct } from "../data/products.js";
 import { formatCurrency } from "../utils/money.js";
+import { updateHeaderCartQuantity } from "./checkoutHeader.js";
+import { renderPaymentSummary } from "./paymentSummary.js";
 
 export function renderOrderSummary(){
     let html = '';
@@ -27,9 +29,10 @@ export function renderOrderSummary(){
                     </div>
                     <div class="product-quantity">
                       <span>
-                        Quantity: <span class="quantity-label">${cartItem.quantity}</span>
+                        Quantity: <span class="quantity-label js-quantity-label-${cartItem.productId}">${cartItem.quantity}</span>
+                        <input type="number" value="${cartItem.quantity}" min="1" oninput="validity.valid || (value='1');" class="quantity-input js-quantity-input-${cartItem.productId}">
                       </span>
-                      <span class="update-quantity-link link-primary">
+                      <span class="update-quantity-link link-primary js-update-quantity-link" data-product-id="${cartItem.productId}">
                         Update
                       </span>
                       <span class="delete-quantity-link link-primary">
@@ -88,4 +91,27 @@ export function renderOrderSummary(){
     });
   
     document.querySelector('.js-order-summary').innerHTML = html;
+    attachEventListeners();
+}
+
+function attachEventListeners(){
+    document.querySelectorAll('.js-update-quantity-link').forEach(button => {
+        button.addEventListener('click', () => {
+            const productId = button.dataset.productId;
+            const quantityInputElement = document.querySelector(`.js-quantity-input-${productId}`);
+            const buttonText = button.innerText.trim();
+            
+            if(buttonText === 'Update'){
+                document.querySelector(`.js-quantity-label-${productId}`).classList.add('make-invisible');
+                quantityInputElement.classList.add('make-visible');
+                button.innerText = 'Save';
+            }
+            else if(buttonText === 'Save'){
+                updateCartItemQuantity(productId, Number(quantityInputElement.value));
+                updateHeaderCartQuantity();
+                renderOrderSummary();
+                renderPaymentSummary();
+            }
+        });
+    });
 }
