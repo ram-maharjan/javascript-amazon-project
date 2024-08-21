@@ -23,6 +23,14 @@ export function addToCart(productId, quantity){
     saveToStorage();
 }
 
+export function removeFromCart(productId){    
+    const index = cart.findIndex(cartItem => cartItem.productId === productId);
+    if (index > -1){
+        cart.splice(index, 1);
+        saveToStorage();
+    }
+}
+
 export function calculateCartQuantity(){
     let cartQuantity = 0;
 
@@ -46,8 +54,8 @@ export function calculateCartPriceCents(){
 }
 
 export function updateCartItemQuantity(productId, quantity){
-    const cartItem = getCartItem(productId);
-    cartItem.quantity = quantity;
+    const matchingItem = getCartItem(productId);
+    matchingItem.quantity = quantity;
     saveToStorage();   
 }
 
