@@ -1,9 +1,9 @@
-import { calculateCartPriceCents, calculateCartQuantity } from "../data/cart.js";
+import { calculateCartPriceCents, calculateCartQuantity, calculateShippingPriceCents } from "../data/cart.js";
 import { formatCurrency } from "../utils/money.js";
 
 export function renderPaymentSummary(){
     const cartPriceCents = calculateCartPriceCents();
-    const shippingPriceCents = 499;
+    const shippingPriceCents = calculateShippingPriceCents();
     const totalBeforeTaxCents = cartPriceCents + shippingPriceCents;
     const taxCents = 0.1 * totalBeforeTaxCents;
     const totalPriceCents = totalBeforeTaxCents + taxCents;

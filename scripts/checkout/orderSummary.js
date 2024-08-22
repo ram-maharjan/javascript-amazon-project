@@ -1,19 +1,21 @@
-import { cart, updateCartItemQuantity, removeFromCart } from "../data/cart.js";
+import { cart, updateCartItemQuantity, removeFromCart, updateCartItemDeliveryOption } from "../data/cart.js";
 import { getProduct } from "../data/products.js";
 import { formatCurrency } from "../utils/money.js";
 import { updateHeaderCartQuantity } from "./checkoutHeader.js";
 import { renderPaymentSummary } from "./paymentSummary.js";
+import { calculateDeliveryDate, deliveryOptions, getDeliveryOption } from "../data/deliveryOptions.js";
 
 export function renderOrderSummary(){
     let html = '';
   
     cart.forEach(cartItem => {
         const product = getProduct(cartItem.productId);
+        const deliveryOption = getDeliveryOption(cartItem.deliveryOptionId);
   
         html += `
               <div class="cart-item-container">
                 <div class="delivery-date">
-                  Delivery date: Tuesday, June 21
+                  Delivery date: ${calculateDeliveryDate(deliveryOption.deliveryDays)}
                 </div>
   
                 <div class="cart-item-details-grid">
@@ -40,50 +42,12 @@ export function renderOrderSummary(){
                       </span>
                     </div>
                   </div>
-  
+                  
                   <div class="delivery-options">
                     <div class="delivery-options-title">
                       Choose a delivery option:
                     </div>
-                    <div class="delivery-option">
-                      <input type="radio" checked
-                        class="delivery-option-input"
-                        name="delivery-option-1">
-                      <div>
-                        <div class="delivery-option-date">
-                          Tuesday, June 21
-                        </div>
-                        <div class="delivery-option-price">
-                          FREE Shipping
-                        </div>
-                      </div>
-                    </div>
-                    <div class="delivery-option">
-                      <input type="radio"
-                        class="delivery-option-input"
-                        name="delivery-option-1">
-                      <div>
-                        <div class="delivery-option-date">
-                          Wednesday, June 15
-                        </div>
-                        <div class="delivery-option-price">
-                          $4.99 - Shipping
-                        </div>
-                      </div>
-                    </div>
-                    <div class="delivery-option">
-                      <input type="radio"
-                        class="delivery-option-input"
-                        name="delivery-option-1">
-                      <div>
-                        <div class="delivery-option-date">
-                          Monday, June 13
-                        </div>
-                        <div class="delivery-option-price">
-                          $9.99 - Shipping
-                        </div>
-                      </div>
-                    </div>
+                    ${getDeliveryOptionsHtml(cartItem.deliveryOptionId, cartItem.productId)}                                        
                   </div>
                 </div>
               </div>
@@ -92,6 +56,34 @@ export function renderOrderSummary(){
   
     document.querySelector('.js-order-summary').innerHTML = html;
     attachEventListeners();
+}
+
+function getDeliveryOptionsHtml(deliveryOptionId, productId){  
+  let html = '';
+
+  deliveryOptions.forEach(deliveryOption => {    
+    const shippingCost = deliveryOption.priceCents === 0 ? 'Free' : `$${formatCurrency(deliveryOption.priceCents)} -`;
+
+    html += `
+      <div class="delivery-option js-delivery-option"
+       data-delivery-option-id="${deliveryOption.id}" data-product-id="${productId}"
+      >
+        <input type="radio" ${deliveryOptionId === deliveryOption.id ? 'checked' : ''}
+          class="delivery-option-input"
+          name="delivery-option-${productId}">
+        <div>
+          <div class="delivery-option-date">
+            ${calculateDeliveryDate(deliveryOption.deliveryDays)}
+          </div>
+          <div class="delivery-option-price">
+            ${shippingCost} Shipping
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  return html;
 }
 
 function attachEventListeners(){
@@ -118,7 +110,15 @@ function attachEventListeners(){
         removeFromCart(button.dataset.productId);
         refreshPage();
       })
-    })
+    });
+
+    document.querySelectorAll(`.js-delivery-option`).forEach(optionsContainer => {
+      optionsContainer.addEventListener('click', () => {
+        const {productId, deliveryOptionId} = optionsContainer.dataset;
+        updateCartItemDeliveryOption(productId, deliveryOptionId);
+        refreshPage();
+      });
+    });
 }
 
 function refreshPage(){
