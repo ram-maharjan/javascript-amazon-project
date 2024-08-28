@@ -1,4 +1,5 @@
-import { calculateCartPriceCents, calculateCartQuantity, calculateShippingPriceCents } from "../data/cart.js";
+import { calculateCartPriceCents, calculateCartQuantity, calculateShippingPriceCents, cart, clearCart } from "../data/cart.js";
+import { placeOrder } from "../data/orders.js";
 import { formatCurrency } from "../utils/money.js";
 
 export function renderPaymentSummary(){
@@ -38,10 +39,16 @@ export function renderPaymentSummary(){
               <div class="payment-summary-money">$${formatCurrency(totalPriceCents)}</div>
             </div>
   
-            <button class="place-order-button button-primary">
+            <button class="place-order-button button-primary js-place-order-button">
               Place your order
             </button>
     `;
   
     document.querySelector('.js-payment-summary').innerHTML = html;
+
+    document.querySelector('.js-place-order-button').addEventListener('click', async () => {
+      await placeOrder(cart);
+      clearCart();
+      window.location.href = 'orders.html';
+    });
   }

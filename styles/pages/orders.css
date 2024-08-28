@@ -151,6 +151,18 @@
   margin-right: 15px;
 }
 
+.added-again {
+  display: none;
+}
+
+.make-visible {
+  display: initial;
+}
+
+.make-invisible {
+  display: none;
+}
+
 .product-actions {
   align-self: start;
 }

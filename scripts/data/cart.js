@@ -78,4 +78,9 @@ export function updateCartItemDeliveryOption(productId, deliveryOptionId){
     saveToStorage();
 }
 
+export function clearCart(){
+    cart.length = 0;
+    saveToStorage();
+}
+
 
